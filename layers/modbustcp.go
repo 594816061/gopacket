@@ -11,7 +11,6 @@ package layers
 import (
 	"encoding/binary"
 	"errors"
-
 	"github.com/google/gopacket"
 )
 
@@ -118,7 +117,9 @@ func (d *ModbusTCP) DecodeFromBytes(data []byte, df gopacket.DecodeFeedback) err
 	// ModbusTCP type embeds type BaseLayer which contains two fields:
 	//    Contents is supposed to contain the bytes of the data at this level (MPBA).
 	//    Payload is supposed to contain the payload of this level (PDU).
-	d.BaseLayer = BaseLayer{Contents: data[:mbapRecordSizeInBytes], Payload: data[mbapRecordSizeInBytes:len(data)]}
+	// !!!
+	//d.BaseLayer = BaseLayer{Contents: data[:mbapRecordSizeInBytes], Payload: data[mbapRecordSizeInBytes:len(data)]}
+	d.BaseLayer = BaseLayer{Contents: data[:mbapRecordSizeInBytes], Payload: data[mbapRecordSizeInBytes:]}
 
 	// Extract the fields from the block of bytes.
 	// The fields can just be copied in big endian order.
@@ -148,9 +149,4 @@ func (d *ModbusTCP) NextLayerType() gopacket.LayerType {
 // Payload returns Modbus Protocol Data Unit (PDU) composed by Function Code and Data, it is carried within ModbusTCP packets
 func (d *ModbusTCP) Payload() []byte {
 	return d.BaseLayer.Payload
-}
-
-// CanDecode returns the set of layer types that this DecodingLayer can decode
-func (s *ModbusTCP) CanDecode() gopacket.LayerClass {
-	return LayerTypeModbusTCP
 }
